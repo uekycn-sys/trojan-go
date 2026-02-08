@@ -1,0 +1,77 @@
+run-type: client
+local-addr: 127.0.0.1
+local-port: 1080
+
+# ---------------------------------------------------------
+# 连接节点选择
+# ---------------------------------------------------------
+# [方案 A: 直连] GCE 免费层级 IP (适合带宽要求不高，且 CF 抽风时使用)
+remote-addr: 35.212.242.94 
+
+# [方案 B: 加速] Cloudflare 优选 IP (核心推荐，建议通过脚本定时测速替换)
+# remote-addr: 172.64.52.149
+
+remote-port: 443
+password:
+  - "uekycn3738"
+
+# ---------------------------------------------------------
+# TLS 深度伪装与安全
+# ---------------------------------------------------------
+ssl:
+  enabled: true
+  verify: false 
+  sni: g.ueky.cn
+  fingerprint: chrome
+  # 显式指定 ALPN，防止 CDN 协商到错误的协议
+  alpn:
+    - http/1.1
+  # 开启 Session Reuse 减少握手延迟
+  reuse_session: true
+  session_ticket: true
+
+# ---------------------------------------------------------
+# 传输层优化
+# ---------------------------------------------------------
+websocket:
+  enabled: true
+  path: /ws
+  host: g.ueky.cn
+
+mux:
+  # 架构建议：WS 模式下 Mux 建议开启。
+  # 若发现大文件下载速度受限，可尝试关闭观察。
+  enabled: true
+  concurrency: 8
+  idle_timeout: 60
+
+tcp:
+  no_delay: true
+  keep_alive: true
+  prefer_ipv4: true
+
+# ---------------------------------------------------------
+# 智能路由与分流 (重点优化)
+# ---------------------------------------------------------
+router:
+  enabled: true
+  # 策略优化：as_is 减少 DNS 查询开销，防止本地 DNS 污染影响判断
+  domain_strategy: as_is 
+  
+  # 规则优先级：Block > Bypass > Proxy
+  block:
+    - 'geosite:category-ads-all' # 增强广告过滤
+  
+  bypass:
+    - 'geoip:cn'
+    - 'geoip:private'
+    - 'geosite:cn'
+    - 'geosite:private'
+    - 'domain:baidu-int.com'    # 针对你前东家内网域名的直连优化
+  
+  proxy:
+    - 'geosite:geolocation-!cn'
+
+  default_policy: proxy
+  geoip: ./geoip.dat
+  geosite: ./geosite.dat
