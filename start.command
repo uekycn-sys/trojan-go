@@ -9,4 +9,7 @@
 
 # 切换到脚本所在目录
 cd "$(dirname "${BASH_SOURCE[0]}")"
-./trojan-go 
+pkill trojan-go
+
+./trojan-go -config config.1080.yaml &> p1080.log &
+./trojan-go -config config.1081.yaml &> p1081.log &
