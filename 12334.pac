@@ -40,7 +40,7 @@ var directDomains = {
 
     // --- 银行/金融/公共 ---
     "cmbchina.com": 1, "icbc.com.cn": 1, "ccb.com": 1, "abchina.com": 1, "boc.cn": 1,
-    "12306.cn": 1, "gov.cn": 1
+    "12306.cn": 1, "gov.cn": 1, "jin10.com": 1
 };
 
 function FindProxyForURL(url, host) {
